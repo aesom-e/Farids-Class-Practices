@@ -4,4 +4,4 @@
 # You must use each word as seperate objects, only use one print statement
 # You need to use sep to correctly finish this activity
 
-print("I", "like", "chickens")
+print("I", "like", "chickens", sep="$")

@@ -1,0 +1,1 @@
+print(f"You are invited to the {input()} at {input()} starting at {input()}.")

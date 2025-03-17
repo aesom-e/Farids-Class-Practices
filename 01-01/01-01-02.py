@@ -4,6 +4,6 @@
 # You must use each word as seperate objects, one in each print
 # You need to use end to correctly finish this activity
 
-print("I")
-print("like")
+print("I", end="$")
+print("like", end="$")
 print("chickens")
