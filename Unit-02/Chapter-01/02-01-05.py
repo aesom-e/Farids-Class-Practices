@@ -1,0 +1,1 @@
+print(str(sum([float(input()) for _ in range(3)])/3 >= 80))
