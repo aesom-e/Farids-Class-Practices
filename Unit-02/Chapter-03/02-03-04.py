@@ -1,0 +1,1 @@
+print("bigger" if float(input()) > float(input()) else "not bigger")

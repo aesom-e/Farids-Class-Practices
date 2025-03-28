@@ -1,0 +1,1 @@
+print("long sentence" if len(input()) > 25 else "short sentence")

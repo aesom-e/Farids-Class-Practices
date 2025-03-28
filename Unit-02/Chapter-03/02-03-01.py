@@ -1,0 +1,1 @@
+print("equal" if int(input()) == 5 else "not equal")

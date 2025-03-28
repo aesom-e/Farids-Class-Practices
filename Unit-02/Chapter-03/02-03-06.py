@@ -4,5 +4,5 @@ def between(bottom: float, num: float, top: float, inclusive: bool) -> bool:
     else:
         return bottom < num and top > num
 
-x = float(input())
-print(between(25, x, 30, False) or between(50, x, 55, True))
+ranges = sorted([float(input()) for _ in range(2)])
+print("between" if between(ranges[0], float(input()), ranges[1], True) else "not between")
