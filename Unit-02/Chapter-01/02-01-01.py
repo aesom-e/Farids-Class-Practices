@@ -1,1 +1,1 @@
-print(str(int(input()) > 100))
+print(str(float(input()) > 100))

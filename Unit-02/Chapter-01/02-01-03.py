@@ -1,1 +1,1 @@
-print(str(abs(int(input())) <= 5))
+print(abs(float(input())) <= 5)

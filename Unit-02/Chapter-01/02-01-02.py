@@ -1,1 +1,1 @@
-print(str(int(input()) == 22))
+print(int(input()) == 21)

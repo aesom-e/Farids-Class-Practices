@@ -1,2 +1,2 @@
-n = int(input())
-print(str((n*3-20)/2 > n))
+n = float(input())
+print((n*3-20)/2 > n)
