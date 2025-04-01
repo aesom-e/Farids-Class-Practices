@@ -1,0 +1,27 @@
+# ninja log v6
+2	219	7651563472450079	build.ninja	b2029496c5b210d2
+4	74	7651432457522256	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
+821	901	7651432779252804	TestGenerator.exe	4baff1db952f178a
+6	92	7648853771979325	CMakeFiles/TestGenerator.dir/error.c.obj	65771619490a6fe9
+7	820	7651432771119479	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+19	497	7651563487014363	CMakeFiles/TestGenerator.dir/caseHandler.c.obj	4a0df518481552f6
+7	498	7651563486885620	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
+4	720	7651563718523635	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+724	1122	7651563725728836	TestGenerator.exe	909fe36ba3f64608
+11	102	7651564180973717	CMakeFiles/TestGenerator.dir/caseHandler.c.obj	4a0df518481552f6
+6	802	7651564180923738	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+807	879	7651564188935940	TestGenerator.exe	909fe36ba3f64608
+7	1793	7651565599213089	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+1795	1944	7651565617083421	TestGenerator.exe	909fe36ba3f64608
+3	1010	7651565835647511	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+1011	1104	7651565845723080	TestGenerator.exe	909fe36ba3f64608
+4	727	7651566202326268	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+728	799	7651566209563432	TestGenerator.exe	909fe36ba3f64608
+4	84	7651570314690117	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
+10	747	7651570314750179	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+748	824	7651570322121695	TestGenerator.exe	909fe36ba3f64608
+5	77	7651575091366538	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
+10	706	7651575091422355	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+706	772	7651575098377869	TestGenerator.exe	909fe36ba3f64608
+4	668	7651575585315347	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+668	739	7651575591944480	TestGenerator.exe	909fe36ba3f64608
