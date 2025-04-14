@@ -22,3 +22,8 @@
 76	169	7663545441568827	TestGenerator.exe	d18c55034eb54262
 4	72	7663546555663640	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
 72	156	7663546556342430	TestGenerator.exe	d18c55034eb54262
+35	234	7663548733557385	CMakeFiles/TestGenerator.dir/caseHandler.c.obj	4a0df518481552f6
+10	249	7663548733308430	CMakeFiles/TestGenerator.dir/main.c.obj	38d8fd038a1e0a91
+19	1788	7663548733405884	CMakeFiles/TestGenerator.dir/constants.c.obj	12d94fb1ba79bf43
+27	1837	7663548733487602	CMakeFiles/TestGenerator.dir/programHandler.c.obj	8000cb854fbff8ee
+1838	2027	7663548751587010	TestGenerator.exe	d18c55034eb54262

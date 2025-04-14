@@ -8,6 +8,9 @@
 #define PROGRAMIO_INITIAL_SIZE 4096
 #define PROGRAMIO_STEP_SIZE    4096
 
+// In milliseconds
+#define OUTPUT_DELAY 100
+
 // Populated at the beginning of runtime
 extern char BASE_PATH[];
 void constants_GetBasePath(void);

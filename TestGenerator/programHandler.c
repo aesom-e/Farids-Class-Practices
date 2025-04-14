@@ -78,7 +78,7 @@ char** programHandler_RunPythonProgram(char* path) {
     if(!programIO[0] || !programIO[1]) error("Failed to allocate input/output buffer");
 
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
+    saAttr.bInheritHandle = 1;
     saAttr.lpSecurityDescriptor = NULL;
 
     if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
@@ -134,7 +134,7 @@ char** programHandler_RunPythonProgram(char* path) {
 
         // Also poll output while waiting for next input
         programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
-        Sleep(100);
+        Sleep(OUTPUT_DELAY);
     }
 
     // Final read to collect remaining output
@@ -203,7 +203,7 @@ char** programHandler_RunPythonProgram(char* path) {
             }
 
             // Check if Python has produced output
-            usleep(50000);
+            usleep(OUTPUT_DELAY * 1000);
             char buffer[256];
             int bytesRead = read(outPipe[0], buffer, sizeof(buffer) - 1);
 

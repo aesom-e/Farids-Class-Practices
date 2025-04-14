@@ -12,7 +12,7 @@ int caseHandler_GetNextCase(char* programNumber) {
     // Get the name of the directory
     char dirName[MAX_PROGRAM_PATH_SIZE];
     snprintf(dirName, MAX_PROGRAM_PATH_SIZE, "%s/tests/%02d-%02d-%02d/",
-                                                BASE_PATH, numbers[0], numbers[1], numbers[2]);
+                                             BASE_PATH, numbers[0], numbers[1], numbers[2]);
     
     // Find what the first unwritten test number is
     int number = 1;
@@ -38,10 +38,10 @@ void caseHandler_PopulateNextCase(char* programNumber, int caseNumber, char** pr
 
     // Open up the input and output files
     char inFileName[MAX_PROGRAM_PATH_SIZE], outFileName[MAX_PROGRAM_PATH_SIZE];
-    snprintf(inFileName, MAX_PROGRAM_PATH_SIZE, "%s/tests/%02d-%02d-%02d/1-%02d.in",
-                                                   BASE_PATH, numbers[0], numbers[1], numbers[2], caseNumber);
+    snprintf(inFileName,  MAX_PROGRAM_PATH_SIZE, "%s/tests/%02d-%02d-%02d/1-%02d.in",
+                                                 BASE_PATH, numbers[0], numbers[1], numbers[2], caseNumber);
     snprintf(outFileName, MAX_PROGRAM_PATH_SIZE, "%s/tests/%02d-%02d-%02d/1-%02d.out",
-                                                    BASE_PATH, numbers[0], numbers[1], numbers[2], caseNumber);
+                                                 BASE_PATH, numbers[0], numbers[1], numbers[2], caseNumber);
     FILE* inFile  = fopen(inFileName, "w");
     if(!inFile) error("Failed to write to .in file\n");
     FILE* outFile = fopen(outFileName, "w");
