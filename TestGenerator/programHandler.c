@@ -15,15 +15,15 @@
 
 char* programHandler_GetProgramName(char* programNumber) {
     int numbers[3];
-    if(sscanf(programNumber, "%d-%d-%d", &(numbers[0]), &(numbers[1]), &(numbers[2])) != 3)
+    if(sscanf(programNumber, "%d-%d-%d", &numbers[0], &numbers[1], &numbers[2]) != 3)
         error("Invalid program number: %s\n", programNumber);
     
     // Get the name of the program 
     char raw[MAX_PROGRAM_PATH_SIZE];
     if(!raw) error("Failed to create a buffer to store the program path\n");
     snprintf(raw, MAX_PROGRAM_PATH_SIZE,
-             "C:/PyCharm/CompSci11/Classroom/Practices-E-Sadler_REAL/Practices-E-Sadler/tests/%02d-%02d-%02d/generator.py",
-             numbers[0], numbers[1], numbers[2]);
+             "%s/tests/%02d-%02d-%02d/generator.py",
+             BASE_PATH, numbers[0], numbers[1], numbers[2]);
     
     // Condense the memory used
     char* ret = calloc(strlen(raw)+1, 1);
@@ -34,122 +34,115 @@ char* programHandler_GetProgramName(char* programNumber) {
 }
 
 #ifdef WIN32
-char** programHandler_RunPythonProgram(char* path) {
-    HANDLE hChildStdoutRd, hChildStdoutWr;
-    HANDLE hChildStdinRd, hChildStdinWr;
-    SECURITY_ATTRIBUTES saAttr;
-    PROCESS_INFORMATION piProcInfo;
-    STARTUPINFO siStartInfo;
-    char** programIO = calloc(2, sizeof(char*));
+void programHandler_ReadAvailableOutput(HANDLE hOutput, char **outputBuffer, unsigned *currentSize) {
+    DWORD availableBytes = 0;
+    char tempBuffer[256];
+    DWORD bytesRead;
 
-    if (!programIO) error("Failed to allocate memory for program IO");
+    while(PeekNamedPipe(hOutput, NULL, 0, NULL, &availableBytes, NULL) && availableBytes > 0) {
+        if(ReadFile(hOutput, tempBuffer, sizeof(tempBuffer) - 1, &bytesRead, NULL) && bytesRead > 0) {
+            tempBuffer[bytesRead] = 0;
+
+            size_t newSize = *currentSize + bytesRead + 1;
+            if(newSize >= PROGRAMIO_INITIAL_SIZE) {
+                char *temp = realloc(*outputBuffer, newSize);
+                if(!temp) error("Failed to reallocate output buffer");
+                *outputBuffer = temp;
+            }
+
+            strcat(*outputBuffer, tempBuffer);
+            *currentSize += bytesRead;
+        } else break;
+    }
+}
+
+int programHandler_ProcessHasExited(HANDLE processHandle) {
+    DWORD exitCode = 0;
+    if(!GetExitCodeProcess(processHandle, &exitCode))
+        error("Failed to get process exit code");
+    return exitCode != STILL_ACTIVE;
+}
+
+
+char** programHandler_RunPythonProgram(char* path) {
+    HANDLE hChildStdoutRd = NULL, hChildStdoutWr = NULL;
+    HANDLE hChildStdinRd = NULL, hChildStdinWr = NULL;
+    SECURITY_ATTRIBUTES saAttr = {0};
+    PROCESS_INFORMATION piProcInfo = {0};
+    STARTUPINFO siStartInfo = {0};
+    char **programIO = calloc(2, sizeof(char*));
+    if(!programIO) error("Failed to allocate memory for program IO");
+
     programIO[0] = calloc(PROGRAMIO_INITIAL_SIZE, 1);
     programIO[1] = calloc(PROGRAMIO_INITIAL_SIZE, 1);
-    if (!programIO[0] || !programIO[1]) error("Failed to allocate input/output buffer");
+    if(!programIO[0] || !programIO[1]) error("Failed to allocate input/output buffer");
 
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = TRUE;
     saAttr.lpSecurityDescriptor = NULL;
 
-    // Create pipes for communication
     if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
         error("Stdout pipe creation failed");
-
     if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0))
         error("Stdin pipe creation failed");
 
-    // Ensure read handles are not inherited
-    SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0);
+    if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0))
+        error("SetHandleInformation failed");
 
-    // Set up process info
-    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
-    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
     siStartInfo.cb = sizeof(STARTUPINFO);
     siStartInfo.hStdError = hChildStdoutWr;
     siStartInfo.hStdOutput = hChildStdoutWr;
     siStartInfo.hStdInput = hChildStdinRd;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // Command string
-    char processName[MAX_PROGRAM_PATH_SIZE + 12];
-    snprintf(processName, sizeof(processName), "python -u \"%s\"", path);
+    char processCommand[MAX_PROGRAM_PATH_SIZE + 20];
+    if (snprintf(processCommand, sizeof(processCommand), "python -u \"%s\"", path) >= sizeof(processCommand)) {
+        error("Python path too long");
+    }
 
-    // Create the child process
-    if (!CreateProcess(NULL, processName, NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
+    if (!CreateProcess(NULL, processCommand, NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
         error("CreateProcess failed");
     }
 
+    // Close unused handles
     CloseHandle(hChildStdoutWr);
     CloseHandle(hChildStdinRd);
 
-    // Writing input and checking output
     char inputBuffer[INPUT_BUFFER_SIZE];
-    DWORD written;
-    size_t inputSize = 0;
+    DWORD bytesWritten;
+    unsigned inputSize = 0;
+    unsigned outputSize = 0;
 
-    while (1) {
-        // Prompt user for input
-        if (fgets(inputBuffer, INPUT_BUFFER_SIZE, stdin)) {
-            size_t len = strlen(inputBuffer);
+    while(!programHandler_ProcessHasExited(piProcInfo.hProcess)) {
+        if(fgets(inputBuffer, INPUT_BUFFER_SIZE, stdin)) {
+            unsigned len = strlen(inputBuffer);
 
-            // Store input dynamically
-            if (inputSize + len >= PROGRAMIO_INITIAL_SIZE) {
-                programIO[0] = realloc(programIO[0], inputSize + len + 1);
-                if (!programIO[0]) error("Failed to reallocate input buffer");
+            unsigned newInputSize = inputSize + len + 1;
+            if(newInputSize >= PROGRAMIO_INITIAL_SIZE) {
+                char *tempInput = realloc(programIO[0], newInputSize);
+                if(!tempInput) error("Failed to reallocate input buffer");
+                programIO[0] = tempInput;
             }
 
             strcat(programIO[0], inputBuffer);
             inputSize += len;
 
-            // Write input to Python process
-            WriteFile(hChildStdinWr, inputBuffer, len, &written, NULL);
+            if(!WriteFile(hChildStdinWr, inputBuffer, (DWORD)len, &bytesWritten, NULL))
+                error("Failed to write to stdin pipe");
+
+            // After writing input, read any available output
+            programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
         }
 
-        // Check if Python has produced output
-        DWORD availableBytes = 0;
-        if (PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &availableBytes, NULL) && availableBytes > 0) {
-            break; // Python responded, stop input loop
-        }
+        // Also poll output while waiting for next input
+        programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
+        Sleep(50);
     }
+
+    // Final read to collect remaining output
+    programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
 
     CloseHandle(hChildStdinWr);
-
-    // Read output from Python
-    DWORD bytesRead;
-    char buffer[256];
-    DWORD totalSize = 0;
-
-    while (1) {
-        DWORD availableBytes = 0;
-        if (!PeekNamedPipe(hChildStdoutRd, NULL, 0, NULL, &availableBytes, NULL)) {
-            break;  // Pipe closed
-        }
-
-        if (availableBytes > 0) {
-            ReadFile(hChildStdoutRd, buffer, sizeof(buffer) - 1, &bytesRead, NULL);
-            if (bytesRead > 0) {
-                buffer[bytesRead] = '\0';
-
-                // Store output dynamically
-                if (totalSize + bytesRead >= PROGRAMIO_INITIAL_SIZE) {
-                    programIO[1] = realloc(programIO[1], totalSize + bytesRead + 1);
-                    if (!programIO[1]) error("Failed to reallocate output buffer");
-                }
-
-                strcat(programIO[1], buffer);
-                totalSize += bytesRead;
-            }
-        } else {
-            Sleep(100);
-        }
-
-        // Check if process has exited
-        DWORD exitCode;
-        if (!GetExitCodeProcess(piProcInfo.hProcess, &exitCode) || exitCode != STILL_ACTIVE) {
-            break;
-        }
-    }
-
     CloseHandle(hChildStdoutRd);
     WaitForSingleObject(piProcInfo.hProcess, INFINITE);
     CloseHandle(piProcInfo.hProcess);

@@ -3,4 +3,6 @@
 
 int caseHandler_GetNextCase(char* programNumber);
 
+void caseHandler_PopulateNextCase(char* programNumber, int caseNumber, char** programIO);
+
 #endif

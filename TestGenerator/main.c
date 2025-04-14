@@ -14,11 +14,12 @@ int main(int argc, char** argv) {
     char** programIO = programHandler_RunPythonProgram(name);
     free(name);
 
-    // Get the next test number
-    int nextTestNumber = caseHandler_GetNextCase(argv[1]);
-    printf("Next test number: %d\n", nextTestNumber);
+    // Write the test case
+    caseHandler_PopulateNextCase(argv[1], caseHandler_GetNextCase(argv[1]), programIO);
 
     free(programIO[0]);
     free(programIO[1]);
     free(programIO);
+
+    printf("Done!");
 }
