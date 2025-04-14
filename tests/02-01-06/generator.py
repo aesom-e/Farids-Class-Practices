@@ -1,1 +1,1 @@
-print(float(input()) * 2 + float(input()))
+print("Okay" if float(input()) * 2 + float(input()) else "Not okay")

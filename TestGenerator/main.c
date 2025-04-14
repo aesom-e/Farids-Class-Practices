@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "programHandler.h"
 #include "caseHandler.h"
+#include "constants.h"
 
 int main(int argc, char** argv) {
     if(argc != 2) {
@@ -9,17 +10,22 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // Get the base path
+    constants_GetBasePath();
+
     // Run the program and get the input/output
     char* name = programHandler_GetProgramName(argv[1]);
+    printf("Case generator started. Input below:\n");
     char** programIO = programHandler_RunPythonProgram(name);
     free(name);
 
     // Write the test case
-    caseHandler_PopulateNextCase(argv[1], caseHandler_GetNextCase(argv[1]), programIO);
+    int nextCase = caseHandler_GetNextCase(argv[1]);
+    caseHandler_PopulateNextCase(argv[1], nextCase, programIO);
 
     free(programIO[0]);
     free(programIO[1]);
     free(programIO);
 
-    printf("Done!");
+    printf("Wrote test %d!", nextCase);
 }

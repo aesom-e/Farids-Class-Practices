@@ -96,13 +96,11 @@ char** programHandler_RunPythonProgram(char* path) {
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     char processCommand[MAX_PROGRAM_PATH_SIZE + 20];
-    if (snprintf(processCommand, sizeof(processCommand), "python -u \"%s\"", path) >= sizeof(processCommand)) {
+    if(snprintf(processCommand, sizeof(processCommand), "python -u \"%s\"", path) >= sizeof(processCommand))
         error("Python path too long");
-    }
 
-    if (!CreateProcess(NULL, processCommand, NULL, NULL, TRUE, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
+    if(!CreateProcess(NULL, processCommand, NULL, NULL, 1, 0, NULL, NULL, &siStartInfo, &piProcInfo))
         error("CreateProcess failed");
-    }
 
     // Close unused handles
     CloseHandle(hChildStdoutWr);
@@ -136,7 +134,7 @@ char** programHandler_RunPythonProgram(char* path) {
 
         // Also poll output while waiting for next input
         programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
-        Sleep(50);
+        Sleep(100);
     }
 
     // Final read to collect remaining output
