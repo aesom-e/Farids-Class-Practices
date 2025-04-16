@@ -27,5 +27,5 @@ int main(int argc, char** argv) {
     free(programIO[1]);
     free(programIO);
 
-    printf("Wrote test %d!", nextCase);
+    printf("Wrote test %d!\n", nextCase);
 }

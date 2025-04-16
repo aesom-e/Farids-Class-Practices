@@ -24,7 +24,7 @@ void constants_GetBasePath(void) {
     #else
     int length = readlink("/proc/self/exe", exePath, MAX_PROGRAM_PATH_SIZE-1);
     if(length == -1)
-        error("Readlink failed\n")
+        error("Readlink failed\n");
     exePath[length] = 0;
     #endif
 
