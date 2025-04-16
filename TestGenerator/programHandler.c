@@ -24,6 +24,10 @@ char* programHandler_GetProgramName(char* programNumber) {
     snprintf(raw, MAX_PROGRAM_PATH_SIZE,
              "%s/tests/%02d-%02d-%02d/generator.py",
              BASE_PATH, numbers[0], numbers[1], numbers[2]);
+
+    FILE* generator = fopen(raw, "r");
+    if(!generator) error("Failed to find the generator at %s\n", raw);
+    fclose(generator);
     
     // Condense the memory used
     char* ret = calloc(strlen(raw)+1, 1);
