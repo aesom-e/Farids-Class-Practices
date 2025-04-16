@@ -1,3 +1,0 @@
-C:/PyCharm/CompSci11/Classroom/Practices-E-Sadler_REAL/Practices-E-Sadler/TestGenerator/cmake-build-debug/CMakeFiles/TestGenerator.dir
-C:/PyCharm/CompSci11/Classroom/Practices-E-Sadler_REAL/Practices-E-Sadler/TestGenerator/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/PyCharm/CompSci11/Classroom/Practices-E-Sadler_REAL/Practices-E-Sadler/TestGenerator/cmake-build-debug/CMakeFiles/rebuild_cache.dir
