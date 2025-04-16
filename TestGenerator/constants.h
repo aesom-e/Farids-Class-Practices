@@ -11,6 +11,8 @@
 // In milliseconds
 #define OUTPUT_DELAY 100
 
+#define C_CODE_PATH "C:/PyCharm/CompSci11/Classroom/Practices-E-Sadler_REAL/Practices-E-Sadler/TestGenerator/"
+
 // Populated at the beginning of runtime
 extern char BASE_PATH[];
 void constants_GetBasePath(void);

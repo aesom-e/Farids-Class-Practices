@@ -79,19 +79,35 @@ char** programHandler_RunPythonProgram(char* path) {
 
     programIO[0] = calloc(PROGRAMIO_INITIAL_SIZE, 1);
     programIO[1] = calloc(PROGRAMIO_INITIAL_SIZE, 1);
-    if(!programIO[0] || !programIO[1]) error("Failed to allocate input/output buffer");
+    if(!programIO[0] || !programIO[1]) {
+        free(programIO);
+        error("Failed to allocate input/output buffer");
+    }
 
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
     saAttr.bInheritHandle = 1;
     saAttr.lpSecurityDescriptor = NULL;
 
-    if (!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0))
+    if(!CreatePipe(&hChildStdoutRd, &hChildStdoutWr, &saAttr, 0)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
         error("Stdout pipe creation failed");
-    if (!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0))
-        error("Stdin pipe creation failed");
+    }
 
-    if (!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0))
+    if(!CreatePipe(&hChildStdinRd, &hChildStdinWr, &saAttr, 0)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
+        error("Stdin pipe creation failed");
+    }
+
+    if(!SetHandleInformation(hChildStdoutRd, HANDLE_FLAG_INHERIT, 0)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
         error("SetHandleInformation failed");
+    }
 
     siStartInfo.cb = sizeof(STARTUPINFO);
     siStartInfo.hStdError = hChildStdoutWr;
@@ -100,11 +116,19 @@ char** programHandler_RunPythonProgram(char* path) {
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
     char processCommand[MAX_PROGRAM_PATH_SIZE + 20];
-    if(snprintf(processCommand, sizeof(processCommand), "python -u \"%s\"", path) >= sizeof(processCommand))
+    if(snprintf(processCommand, sizeof(processCommand), "python -u \"%s\"", path) >= sizeof(processCommand)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
         error("Python path too long");
+    }
 
-    if(!CreateProcess(NULL, processCommand, NULL, NULL, 1, 0, NULL, NULL, &siStartInfo, &piProcInfo))
+    if(!CreateProcess(NULL, processCommand, NULL, NULL, 1, 0, NULL, NULL, &siStartInfo, &piProcInfo)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
         error("CreateProcess failed");
+    }
 
     // Close unused handles
     CloseHandle(hChildStdoutWr);
@@ -122,15 +146,24 @@ char** programHandler_RunPythonProgram(char* path) {
             unsigned newInputSize = inputSize + len + 1;
             if(newInputSize >= PROGRAMIO_INITIAL_SIZE) {
                 char *tempInput = realloc(programIO[0], newInputSize);
-                if(!tempInput) error("Failed to reallocate input buffer");
+                if(!tempInput) {
+                    free(programIO[0]);
+                    free(programIO[1]);
+                    free(programIO);
+                    error("Failed to reallocate input buffer");
+                }
                 programIO[0] = tempInput;
             }
 
             strcat(programIO[0], inputBuffer);
             inputSize += len;
 
-            if(!WriteFile(hChildStdinWr, inputBuffer, (DWORD)len, &bytesWritten, NULL))
+            if(!WriteFile(hChildStdinWr, inputBuffer, (DWORD)len, &bytesWritten, NULL)) {
+                free(programIO[0]);
+                free(programIO[1]);
+                free(programIO);
                 error("Failed to write to stdin pipe");
+            }
 
             // After writing input, read any available output
             programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
@@ -143,6 +176,17 @@ char** programHandler_RunPythonProgram(char* path) {
 
     // Final read to collect remaining output
     programHandler_ReadAvailableOutput(hChildStdoutRd, &programIO[1], &outputSize);
+
+    // Check that the program exited correctly (exit code 0)
+    DWORD exitCode = 1;
+    if(!GetExitCodeProcess(piProcInfo.hProcess, &exitCode)) {
+        free(programIO[0]);
+        free(programIO[1]);
+        free(programIO);
+        error("Failed to get process exit code");
+    }
+    if(exitCode)
+        error("Python exited with code %u. Full output:\n%s", exitCode, programIO[1]); // Leaks memory, but I don't care, I'd rather the logs
 
     CloseHandle(hChildStdinWr);
     CloseHandle(hChildStdoutRd);
