@@ -1,8 +1,21 @@
+"""Simulates a fight between two people with different healths and different strength
+
+This script randomly alternates turns between John and Joe where John has more health
+and lower strength, and Joe has less health and higher strength.
+"""
+
 import random
 
 john, joe = 750, 250
 
 def hit(name: str) -> None:
+    """
+    Simulates a hit in the fight
+
+    Args:
+        name (str): The name of the victim
+    """
+
     global john, joe
     if name == "John":
         hit = random.randint(60, 90)

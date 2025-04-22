@@ -1,9 +1,12 @@
-import math
+"""Scales the resolution of an icon up
 
-k = int(input())
+Every character is enlarged to a block of k*k size
+"""
+
+k = int(input("Scaling (k) value: "))
 
 if not (0 < k <= 10):
-    raise ValueError(f"Improper k value {k}")
+    raise ValueError(f"Improper k value {k} (0 < k <= 10)")
 
 # Ignore the hard coded icon and 3s
 icon = "*x* xx* *"
