@@ -1,4 +1,9 @@
-"""Prints the fibbonacci sequence up to the twenty-fifth term and an approximation of the golden ratio"""
+"""Prints the fibbonacci sequence and golden ratio
+
+Prints the fibbonacci sequence up to term 25
+and uses the 24th and 25th term to calculate
+an approximation of the golden ratio
+"""
 
 previous, current = 1, 1
 twenty_fourth, twenty_fifth = 0, 0

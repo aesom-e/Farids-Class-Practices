@@ -5,6 +5,7 @@ Every character is enlarged to a block of k*k size
 
 k = int(input("Scaling (k) value: "))
 
+# Check that k is inbounds
 if not (0 < k <= 10):
     raise ValueError(f"Improper k value {k} (0 < k <= 10)")
 

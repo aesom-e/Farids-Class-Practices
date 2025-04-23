@@ -17,6 +17,7 @@ def hit(name: str) -> None:
     """
 
     global john, joe
+    
     if name == "John":
         hit = random.randint(60, 90)
         john -= hit
